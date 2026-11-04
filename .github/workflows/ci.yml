@@ -6,6 +6,7 @@ on:
     branches:
       - main
       - lab3-ci
+      - 'lab3-demo-*'
   pull_request:
     branches:
       - main
@@ -89,8 +90,14 @@ jobs:
       - name: Verify fixture SHA256
         run: sha256sum -c ci/fixture.sha256
 
-      - name: Data Quality Gate
-        run: python -m src.data_gate
+      - name: Data Quality Gate (DEMO - invalid schema)
+        run: |
+          mkdir -p ci/demo
+          printf 'text\nHello world\n' > ci/demo/invalid_schema.csv
+
+          python -m src.data_gate \
+            --data ci/demo/invalid_schema.csv \
+            --output metrics/data_gate_result.json
 
       # 8. Проверка качества модели
       - name: Evaluate candidate model
