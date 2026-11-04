@@ -90,21 +90,44 @@ jobs:
       - name: Verify fixture SHA256
         run: sha256sum -c ci/fixture.sha256
 
-      - name: Data Quality Gate (DEMO - invalid schema)
-        run: |
-          mkdir -p ci/demo
-          printf 'text\nHello world\n' > ci/demo/invalid_schema.csv
-
-          python -m src.data_gate \
-            --data ci/demo/invalid_schema.csv \
-            --output metrics/data_gate_result.json
+      - name: Data Quality Gate
+        run: python -m src.data_gate
 
       # 8. Проверка качества модели
       - name: Evaluate candidate model
         run: python -m src.evaluate_ci_candidate
 
-      - name: Model Quality Gate
-        run: python -m src.model_gate
+
+      - name: Model Quality Gate (DEMO - degraded F1)
+        run: |
+          # Simulated metrics: test of gate logic, not real model quality
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          source = Path("metrics/ci_candidate.json")
+          target = Path("metrics/ci_candidate_simulated.json")
+
+          candidate = json.loads(
+              source.read_text(encoding="utf-8")
+          )
+
+          candidate["metric_value"] = 0.80
+          candidate["accuracy"] = 0.80
+          candidate["evaluation"] = "simulated_gate_test"
+
+          target.write_text(
+              json.dumps(candidate, indent=4),
+              encoding="utf-8"
+          )
+
+          print("Simulated F1:", candidate["metric_value"])
+          PY
+
+          python -m src.model_gate \
+            --candidate metrics/ci_candidate_simulated.json \
+            --output metrics/model_gate_result.json \
+            --allow-simulation
 
       # 9. Сборка Docker
       - name: Build Docker image
