@@ -1,0 +1,18 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.2.0, pluggy-1.7.0 -- /home/mluser/ml-project/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/mluser/ml-project
+plugins: platformdirs-4.14.5, anyio-4.16.0
+collecting ... collected 9 items
+
+tests/test_predict.py::test_valid_input PASSED                           [ 11%]
+tests/test_predict.py::test_invalid_type PASSED                          [ 22%]
+tests/test_predict.py::test_empty_text PASSED                            [ 33%]
+tests/test_predict.py::test_text_too_long PASSED                         [ 44%]
+tests/test_predict.py::test_missing_field PASSED                         [ 55%]
+tests/test_predict.py::test_unexpected_field PASSED                      [ 66%]
+tests/test_predict.py::test_null_byte PASSED                             [ 77%]
+tests/test_predict.py::test_invalid_structure PASSED                     [ 88%]
+tests/test_predict.py::test_none_input PASSED                            [100%]
+
+============================== 9 passed in 0.16s ===============================

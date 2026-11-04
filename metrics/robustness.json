@@ -1,0 +1,52 @@
+{
+    "seed": 42,
+    "sample_size": 20,
+    "classes": {
+        "BENIGN": 10,
+        "INJECTION": 10
+    },
+    "transformations": {
+        "case_change": {
+            "total": 20,
+            "modified_texts": 20,
+            "changed_predictions": 0,
+            "flip_rate": 0.0,
+            "original_accuracy": 0.95,
+            "modified_accuracy": 0.95,
+            "original_recall_injection": 1.0,
+            "modified_recall_injection": 1.0,
+            "modified_f1_injection": 0.9523809523809523
+        },
+        "extra_spaces": {
+            "total": 20,
+            "modified_texts": 20,
+            "changed_predictions": 0,
+            "flip_rate": 0.0,
+            "original_accuracy": 0.95,
+            "modified_accuracy": 0.95,
+            "original_recall_injection": 1.0,
+            "modified_recall_injection": 1.0,
+            "modified_f1_injection": 0.9523809523809523
+        },
+        "typo": {
+            "total": 20,
+            "modified_texts": 20,
+            "changed_predictions": 0,
+            "flip_rate": 0.0,
+            "original_accuracy": 0.95,
+            "modified_accuracy": 0.95,
+            "original_recall_injection": 1.0,
+            "modified_recall_injection": 1.0,
+            "modified_f1_injection": 0.9523809523809523
+        }
+    },
+    "unusual_input": {
+        "description": "Unusually long repetitive input",
+        "length": 1079,
+        "max_train_length": 627,
+        "prediction": {
+            "label": 0,
+            "class_name": "BENIGN"
+        }
+    }
+}

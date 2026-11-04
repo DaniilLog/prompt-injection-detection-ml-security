@@ -1,0 +1,33 @@
+{
+    "random_state": 42,
+    "split_method": "Original dataset splits",
+    "original_sizes": {
+        "train": 11089,
+        "validation": 2101,
+        "test": 2101
+    },
+    "processed_sizes": {
+        "train": 11050,
+        "validation": 1981,
+        "test": 2101
+    },
+    "removed_rows": {
+        "train": 39,
+        "validation": 120,
+        "test": 0
+    },
+    "class_distribution": {
+        "train": {
+            "0": 6267,
+            "1": 4783
+        },
+        "validation": {
+            "0": 1040,
+            "1": 941
+        },
+        "test": {
+            "0": 1050,
+            "1": 1051
+        }
+    }
+}
