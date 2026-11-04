@@ -1,0 +1,27 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Secrets
+.env
+*.pem
+*.key
+
+# IDE
+.vscode/
+.idea/
+
+# Operating system
+.DS_Store
+
+# Datasets
+data/*
+!data/.gitkeep
+
+# Trained models
+models/*
+!models/.gitkeep

@@ -1,0 +1,2 @@
+Repository: S-Labs/prompt-injection-dataset
+Revision: 002a9dd18514abd021869823d6b0429b38606d99
