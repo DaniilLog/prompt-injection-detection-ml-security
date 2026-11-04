@@ -1,0 +1,8 @@
+{
+  "primary_metric": "f1_injection",
+  "positive_class": 1,
+  "max_relative_degradation": 0.05,
+  "minimum_samples": 200,
+  "require_matching_fixture_sha256": true,
+  "reject_missing_or_non_numeric_metric": true
+}

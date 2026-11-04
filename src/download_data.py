@@ -1,8 +1,9 @@
 
-from pathlib import Path
-from hashlib import sha256
-from huggingface_hub import hf_hub_download
 import shutil
+from hashlib import sha256
+from pathlib import Path
+
+from huggingface_hub import hf_hub_download
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data"

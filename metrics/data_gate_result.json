@@ -1,0 +1,13 @@
+{
+    "status": "passed",
+    "total_rows": 200,
+    "class_distribution": {
+        "0": 100,
+        "1": 100
+    },
+    "sha256": "adda86139d55e46fb5b1fd3bb18216bcb24c6fffaa1e2eef012e6cc5e1f36e4d",
+    "schema": [
+        "text",
+        "label"
+    ]
+}

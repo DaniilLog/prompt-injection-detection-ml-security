@@ -1,21 +1,20 @@
 
-from pathlib import Path
-from hashlib import sha256
 import json
+from hashlib import sha256
+from pathlib import Path
 
 import joblib
-import pandas as pd
 import matplotlib.pyplot as plt
-
+import pandas as pd
 from sklearn.dummy import DummyClassifier
 from sklearn.metrics import (
+    ConfusionMatrixDisplay,
     accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score,
     classification_report,
     confusion_matrix,
-    ConfusionMatrixDisplay,
+    f1_score,
+    precision_score,
+    recall_score,
 )
 
 ROOT = Path(__file__).resolve().parent.parent

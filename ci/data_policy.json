@@ -1,0 +1,14 @@
+
+{
+  "required_columns": ["text", "label"],
+  "allowed_labels": [0, 1],
+  "minimum_rows": 200,
+  "maximum_rows": 200,
+  "minimum_per_class": 80,
+  "maximum_per_class": 120,
+  "maximum_text_length": 2000,
+  "maximum_file_size_bytes": 1048576,
+  "reject_empty_text": true,
+  "require_unique_text": true,
+  "enforce_sha256": true
+}

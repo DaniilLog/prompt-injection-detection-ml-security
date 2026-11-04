@@ -1,0 +1,23 @@
+{
+    "source": "S-Labs/prompt-injection-dataset",
+    "license": "MIT",
+    "source_split": "processed/validation.csv",
+    "source_revision": "002a9dd18514abd021869823d6b0429b38606d99",
+    "source_sha256": "e35256249d92e57dfc4f157c460dced07ce0bf045a0e410372c81e16da484279",
+    "fixture": "ci/fixtures/validation_200.csv",
+    "fixture_sha256": "adda86139d55e46fb5b1fd3bb18216bcb24c6fffaa1e2eef012e6cc5e1f36e4d",
+    "seed": 42,
+    "schema": {
+        "text": "string",
+        "label": "integer"
+    },
+    "allowed_labels": [
+        0,
+        1
+    ],
+    "sample_size": 200,
+    "class_distribution": {
+        "0": 100,
+        "1": 100
+    }
+}

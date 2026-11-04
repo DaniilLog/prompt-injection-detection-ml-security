@@ -1,14 +1,13 @@
 
-from pathlib import Path
 import json
 import re
+from pathlib import Path
 
-import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
+from sklearn.metrics import accuracy_score, f1_score, recall_score
 
-from sklearn.metrics import accuracy_score, recall_score, f1_score
-
-from src.predict import predict, MAX_TEXT_LENGTH
+from src.predict import MAX_TEXT_LENGTH, predict
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data" / "processed"

@@ -1,0 +1,12 @@
+{
+    "model": "TF-IDF + Logistic Regression",
+    "evaluation": "real_model_evaluation",
+    "metric": "f1_injection",
+    "metric_value": 0.9746192893401016,
+    "accuracy": 0.975,
+    "positive_class": 1,
+    "sample_size": 200,
+    "fixture_sha256": "adda86139d55e46fb5b1fd3bb18216bcb24c6fffaa1e2eef012e6cc5e1f36e4d",
+    "source_revision": "002a9dd18514abd021869823d6b0429b38606d99",
+    "model_sha256": "7a080134753b3045d21cd52b2a28917af6b0c7cb2a9ece5cbe65003f382b53c1"
+}

@@ -1,22 +1,21 @@
 
+import json
 from pathlib import Path
 from time import perf_counter
-import json
 
 import joblib
 import pandas as pd
 import sklearn
-
-from sklearn.pipeline import Pipeline
+from sklearn.dummy import DummyClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
-from sklearn.dummy import DummyClassifier
 from sklearn.metrics import (
     accuracy_score,
+    f1_score,
     precision_score,
     recall_score,
-    f1_score,
 )
+from sklearn.pipeline import Pipeline
 
 ROOT = Path(__file__).resolve().parent.parent
 

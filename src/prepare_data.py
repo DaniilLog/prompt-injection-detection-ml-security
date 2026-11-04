@@ -1,7 +1,8 @@
 
-from pathlib import Path
-import pandas as pd
 import json
+from pathlib import Path
+
+import pandas as pd
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data"
