@@ -1,0 +1,18 @@
+# Deny everything by default
+*
+
+# Only application code
+!src/
+!src/__init__.py
+!src/predict.py
+
+# Only the required model
+!models/
+!models/baseline_tfidf_logreg.joblib
+
+# Only model integrity data
+!security/
+!security/model.sha256
+
+# Runtime dependencies
+!requirements-runtime.txt

@@ -1,0 +1,10 @@
+{
+    "status": "passed",
+    "metric": "f1_injection",
+    "baseline": 0.9746192893401016,
+    "candidate": 0.9746192893401016,
+    "threshold": 0.9258883248730965,
+    "max_relative_degradation": 0.05,
+    "fixture_sha256": "adda86139d55e46fb5b1fd3bb18216bcb24c6fffaa1e2eef012e6cc5e1f36e4d",
+    "evaluation": "real_model_evaluation"
+}

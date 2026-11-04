@@ -1,11 +1,12 @@
 
-import pytest
 from unittest.mock import Mock
 
+import pytest
+
 from src.predict import (
-    predict,
-    InputValidationError,
     MAX_TEXT_LENGTH,
+    InputValidationError,
+    predict,
 )
 
 
