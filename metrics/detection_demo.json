@@ -1,0 +1,33 @@
+{
+    "scenario": "controlled_invalid_auth",
+    "simulation": true,
+    "rule": {
+        "http_status": 401,
+        "threshold": 3,
+        "window_seconds": 60
+    },
+    "started_utc": "2026-11-05T00:58:55.002884+00:00",
+    "finished_utc": "2026-11-05T00:58:55.012457+00:00",
+    "elapsed_seconds": 0.01,
+    "counter_before": 1.0,
+    "counter_after": 4.0,
+    "counter_delta": 3.0,
+    "attempts": [
+        {
+            "status": 401,
+            "request_id": "c57fcd31-eaca-48db-a8c1-3fc1d18d8910"
+        },
+        {
+            "status": 401,
+            "request_id": "6fb43cf5-72d5-46e1-9984-daed7beba4d5"
+        },
+        {
+            "status": 401,
+            "request_id": "120a5d88-6a68-4365-8b2c-0d060966584b"
+        }
+    ],
+    "alert_triggered": true,
+    "health_after": 200,
+    "prediction_after": "BENIGN",
+    "recovered": true
+}

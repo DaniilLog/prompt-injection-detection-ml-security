@@ -708,3 +708,215 @@ https://github.com/DaniilLog/prompt-injection-detection-ml-security/releases/tag
 Получены успешный запуск и три отдельных сценария отказа.
 
 Автоматическое развертывание в production не выполняется, поскольку не входит в обязательную часть лабораторной работы.
+
+---
+
+# Lab 4. Secure ML API and Monitoring
+
+## Overview
+
+The project provides a secure FastAPI service for
+detecting prompt injection attempts using the
+TF-IDF + Logistic Regression model from Lab 2.
+
+Model version: lab2-v1.
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | / | Web interface |
+| GET | /health | Model readiness |
+| POST | /predict | Protected prediction |
+| GET | /metrics | Protected Prometheus metrics |
+
+Prediction request:
+
+    {"text": "What is machine learning?"}
+
+Successful response:
+
+    {
+      "prediction": "BENIGN",
+      "model_version": "lab2-v1",
+      "request_id": "generated-uuid"
+    }
+
+## Security Controls
+
+- Bearer authentication for /predict.
+- Separate bearer authentication for /metrics.
+- Maximum text length: 2000 characters.
+- Maximum JSON body size: 32 KiB.
+- Rate limiting: 10 requests per 60 seconds per IP.
+- Server-side validation before model execution.
+- Rejection of malformed JSON, null bytes and invalid types.
+- SHA256 verification before model deserialization.
+- Isolated ML worker with a 5-second inference timeout.
+- Worker termination on inference timeout.
+- Non-root Docker execution with UID 10001.
+- Read-only container filesystem.
+- Restricted Linux capabilities and process limits.
+- No secrets or user input content in application logs.
+
+HTTP error codes:
+
+- 400: Malformed request.
+- 401: Authentication failure.
+- 413: Request body too large.
+- 415: Unsupported media type.
+- 422: Input validation failure.
+- 429: Rate limit exceeded.
+- 503: Service or worker unavailable.
+- 504: Inference timeout.
+
+## Local Execution
+
+The application requires two environment variables:
+
+- ML_API_TOKEN
+- ML_METRICS_TOKEN
+
+Secrets must be provided at runtime and must not
+be committed to Git.
+
+Run the application:
+
+    python -m uvicorn src.api:app \
+      --host 127.0.0.1 --port 8000 --workers 1
+
+Open:
+
+    http://127.0.0.1:8000/
+
+## Docker
+
+Build the image:
+
+    docker build --pull -t ml-project:lab4 .
+
+Run the container with runtime credentials:
+
+    docker run -d --rm \
+      --name ml-lab4 \
+      --read-only \
+      --cap-drop=ALL \
+      --security-opt no-new-privileges \
+      -p 127.0.0.1:8001:8000 \
+      --env-file /path/to/private/lab4.env \
+      ml-project:lab4
+
+The environment file must be stored outside
+the repository.
+
+Verify non-root execution:
+
+    docker run --rm --entrypoint id \
+      ml-project:lab4 -u
+
+Expected UID: 10001.
+
+## Monitoring
+
+Prometheus metrics are available at /metrics
+with a separate authentication token.
+
+Tracked metrics include:
+
+- ml_api_requests_total
+- ml_api_request_duration_seconds
+- ml_api_rejections_total
+
+Structured JSON logs contain:
+
+- timestamp
+- request_id
+- route
+- HTTP status
+- request duration
+- model version
+- failure type
+
+Input text and authentication tokens are not logged.
+
+## Detection Scenario
+
+A controlled scenario sends three requests
+with invalid authentication tokens.
+
+Detection condition:
+
+3 or more HTTP 401 responses during
+a 60-second observation interval.
+
+Run:
+
+    python -m src.detection_demo
+
+Observed results:
+
+- HTTP 401 counter before: 1
+- HTTP 401 counter after: 4
+- New authentication failures: 3
+- Alert: TRIGGERED
+- Recovery health: HTTP 200
+- Recovery prediction: BENIGN
+
+The report is stored in metrics/detection_demo.json.
+
+This is a demonstration of detection logic,
+not a continuously running alerting system.
+
+## Limitations
+
+The rate limiter stores counters in process memory.
+Counters are reset after restart and are not shared
+between workers.
+
+IP-based limiting uses the direct connection address.
+Forwarded headers are not trusted by the application.
+
+The isolated model worker accepts one prediction
+at a time. After an inference timeout, the worker
+is terminated and readiness returns HTTP 503
+until the service is restarted.
+
+## Automated Verification
+
+Run locally:
+
+    ruff check src/ tests/
+    python -m bandit -r src/
+    python -m pytest tests/ -q
+    python -m pip_audit -r requirements.txt
+    python -m src.data_gate
+    python -m src.model_gate
+    python -m src.worker_smoke
+
+GitHub Actions additionally verifies:
+
+- Docker image build
+- Non-root execution
+- API health and prediction
+- Authentication and input validation
+- Protected metrics
+- Trivy image vulnerability gate
+- Trivy Dockerfile configuration gate
+
+The dependency audit rejects known findings.
+The Trivy image gate rejects CRITICAL vulnerabilities.
+The Dockerfile gate rejects UNKNOWN, HIGH and
+CRITICAL configuration findings.
+
+## Security Scan Results
+
+Local Trivy version: 0.76.1.
+
+Scan date: November 5, 2026.
+
+- CRITICAL image vulnerabilities: 0
+- Blocking Dockerfile misconfigurations: 0
+- Image gate exit code: 0
+- Config gate exit code: 0
+
+Reports are stored in the security/ directory.

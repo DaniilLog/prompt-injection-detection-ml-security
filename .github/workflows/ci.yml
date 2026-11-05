@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - main
-      - lab3-ci
+      - lab4-api
   pull_request:
     branches:
       - main
@@ -28,25 +28,26 @@ jobs:
         shell: bash
 
     steps:
-      # 1. Получение исходного кода
+      # 1. Checkout
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
 
-      # 2. Установка Python
+      # 2. Python
       - name: Setup Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: '3.12'
 
+      # 3. Dependencies
       - name: Install dependencies
         run: |
           python -m pip install -r requirements.txt
           python -m pip check
           mkdir -p metrics security models
 
-      # 3. Получение проверенной модели
+      # 4. Verified model
       - name: Download and verify model
         run: |
           curl --fail --location --retry 3 \
@@ -55,29 +56,34 @@ jobs:
 
           sha256sum -c security/model.sha256
 
+          sha256sum models/baseline_tfidf_logreg.joblib \
+            > metrics/ci_model_sha256.txt
+
+      # 5. Build metadata
       - name: Record build information
         run: |
           echo "$GITHUB_SHA" > metrics/ci_commit.txt
           date -u -Is > metrics/ci_date.txt
           python --version > metrics/ci_python.txt
 
-      # 4. Проверки исходного кода
+      # 6. Static checks
       - name: Ruff lint
         run: |
-          ruff check src/ tests/ 2>&1 | tee metrics/ci_ruff.txt
+          ruff check src/ tests/ \
+            2>&1 | tee metrics/ci_ruff.txt
 
       - name: Bandit security analysis
         run: |
           python -m bandit -r src/ -f txt \
             2>&1 | tee security/ci_bandit.txt
 
-      # 5. Автоматические тесты
+      # 7. Tests LR2-LR4
       - name: Pytest
         run: |
           python -m pytest tests/ -q \
             --junitxml=metrics/ci_pytest.xml
 
-      # 6. Аудит зависимостей
+      # 8. Dependency audit
       - name: Dependency audit
         run: |
           python -m pip_audit \
@@ -85,52 +91,194 @@ jobs:
             -f json \
             -o security/ci_pip_audit.json
 
-      # 7. Проверка контрольных данных
+      # 9. Data gate
       - name: Verify fixture SHA256
         run: sha256sum -c ci/fixture.sha256
 
       - name: Data Quality Gate
         run: python -m src.data_gate
 
-      # 8. Проверка качества модели
+      # 10. Model gate
       - name: Evaluate candidate model
         run: python -m src.evaluate_ci_candidate
 
       - name: Model Quality Gate
         run: python -m src.model_gate
 
-      # 9. Сборка Docker
+      # 11. Worker smoke
+      - name: Isolated ML worker smoke test
+        run: python -m src.worker_smoke
+
+      # 12. Build API image
       - name: Build Docker image
         run: |
           docker build --pull \
             --label "org.opencontainers.image.revision=${GITHUB_SHA}" \
-            -t ml-project:lab3 .
+            -t ml-project:lab4 .
 
-      # 10. Проверка контейнера
-      - name: Non-root and smoke test
+      # 13. Non-root
+      - name: Verify non-root container
         run: |
-          test "$(docker run --rm --entrypoint id ml-project:lab3 -u)" = "10001"
+          test "$(docker run --rm --entrypoint id \
+            ml-project:lab4 -u)" = "10001"
 
-          docker run --rm \
-            --network none \
+      # 14. Temporary CI credentials
+      - name: Prepare temporary API credentials
+        run: |
+          python - <<'PY'
+          import os
+          import secrets
+          from pathlib import Path
+
+          path = Path(os.environ["RUNNER_TEMP"]) / "ml-lab4.env"
+
+          path.write_text(
+              "ML_API_TOKEN=" + secrets.token_urlsafe(32) + "\n"
+              "ML_METRICS_TOKEN=" + secrets.token_urlsafe(32) + "\n",
+              encoding="utf-8",
+          )
+          path.chmod(0o600)
+          print("Temporary CI credentials configured")
+          PY
+
+      # 15. Start API
+      - name: Start secured API container
+        run: |
+          docker run -d --rm \
+            --name ml-lab4-ci \
+            --init \
             --read-only \
+            --tmpfs /tmp:rw,nosuid,nodev,size=64m \
             --cap-drop=ALL \
             --security-opt no-new-privileges \
-            ml-project:lab3
+            --pids-limit=64 \
+            --memory=768m \
+            -p 127.0.0.1:8001:8000 \
+            --env-file "$RUNNER_TEMP/ml-lab4.env" \
+            ml-project:lab4
 
-      # 11. Установка Trivy
+      # 16. HTTP smoke checks
+      - name: API smoke test
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import time
+          from pathlib import Path
+
+          import httpx
+
+          base = "http://127.0.0.1:8001"
+
+          env_path = (
+              Path(os.environ["RUNNER_TEMP"]) / "ml-lab4.env"
+          )
+
+          credentials = dict(
+              line.split("=", 1)
+              for line in env_path.read_text().splitlines()
+          )
+
+          api_token = credentials["ML_API_TOKEN"]
+          metrics_token = credentials["ML_METRICS_TOKEN"]
+
+          with httpx.Client(timeout=10) as client:
+              for attempt in range(60):
+                  try:
+                      health = client.get(base + "/health")
+                      if health.status_code == 200:
+                          break
+                  except httpx.RequestError:
+                      pass
+                  time.sleep(1)
+              else:
+                  raise RuntimeError("API readiness timeout")
+
+              prediction = client.post(
+                  base + "/predict",
+                  headers={
+                      "Authorization": f"Bearer {api_token}"
+                  },
+                  json={"text": "What is machine learning?"},
+              )
+
+              unauthorized = client.post(
+                  base + "/predict",
+                  json={"text": "Hello"},
+              )
+
+              invalid = client.post(
+                  base + "/predict",
+                  headers={
+                      "Authorization": f"Bearer {api_token}"
+                  },
+                  json={"text": ""},
+              )
+
+              protected = client.get(base + "/metrics")
+
+              metrics = client.get(
+                  base + "/metrics",
+                  headers={
+                      "Authorization": f"Bearer {metrics_token}"
+                  },
+              )
+
+              webpage = client.get(base + "/")
+
+              statuses = {
+                  "health": health.status_code,
+                  "prediction": prediction.status_code,
+                  "unauthorized": unauthorized.status_code,
+                  "invalid_input": invalid.status_code,
+                  "metrics_unauthorized": protected.status_code,
+                  "metrics_authorized": metrics.status_code,
+                  "web_interface": webpage.status_code,
+              }
+
+              expected = {
+                  "health": 200,
+                  "prediction": 200,
+                  "unauthorized": 401,
+                  "invalid_input": 422,
+                  "metrics_unauthorized": 401,
+                  "metrics_authorized": 200,
+                  "web_interface": 200,
+              }
+
+              assert statuses == expected
+              assert prediction.json()["prediction"] == "BENIGN"
+              assert "ml_api_requests_total" in metrics.text
+
+              report = {
+                  "status": "passed",
+                  "http_checks": statuses,
+                  "model_version": prediction.json()["model_version"],
+                  "model_prediction": prediction.json()["prediction"],
+              }
+
+              Path("metrics/ci_api_smoke.json").write_text(
+                  json.dumps(report, indent=4),
+                  encoding="utf-8",
+              )
+
+              print(json.dumps(report, indent=4))
+              print("DOCKER API SMOKE TEST PASSED")
+          PY
+
+      # 17. Trivy setup
       - name: Setup Trivy
         uses: aquasecurity/setup-trivy@e07451d2e059ed86c2870430ea286b3a9e0bf241
         with:
           version: v0.76.1
 
-      # 12. Сканирование Docker-образа
+      # 18. Image scan
       - name: Trivy image full report
         run: |
           trivy image --scanners vuln \
             --format json \
             --output security/trivy_ci_image_full.json \
-            ml-project:lab3
+            ml-project:lab4
 
       - name: Trivy Image Security Gate
         run: |
@@ -139,9 +287,9 @@ jobs:
             --exit-code 1 \
             --format json \
             --output security/trivy_ci_image_critical.json \
-            ml-project:lab3
+            ml-project:lab4
 
-      # 13. Анализ Dockerfile
+      # 19. Dockerfile scan
       - name: Trivy config full report
         run: |
           trivy config \
@@ -158,7 +306,16 @@ jobs:
             --output security/trivy_ci_config_gate.json \
             Dockerfile
 
-      # 14. Сохранение отчетов даже при ошибке
+      # 20. Diagnostics
+      - name: Collect container diagnostics
+        if: always()
+        run: |
+          docker logs --tail 100 ml-lab4-ci \
+            > security/ci_docker_logs.txt 2>&1 || true
+
+          docker rm -f ml-lab4-ci 2>/dev/null || true
+
+      # 21. Upload reports
       - name: Upload CI reports
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
