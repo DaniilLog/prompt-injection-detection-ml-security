@@ -1,16 +1,26 @@
+
 # Deny everything by default
 *
 
-# Only application code
+# Application modules
 !src/
 !src/__init__.py
+!src/api.py
 !src/predict.py
+!src/inference_worker.py
+!src/observability.py
 
-# Only the required model
+# Static web interface
+!static/
+!static/index.html
+!static/style.css
+!static/app.js
+
+# Verified model
 !models/
 !models/baseline_tfidf_logreg.joblib
 
-# Only model integrity data
+# Model integrity reference
 !security/
 !security/model.sha256
 

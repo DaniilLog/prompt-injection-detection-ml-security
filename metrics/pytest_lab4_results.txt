@@ -1,0 +1,38 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.2.0, pluggy-1.7.0 -- /home/mluser/ml-project/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/mluser/ml-project
+plugins: platformdirs-4.14.5, anyio-4.16.0
+collecting ... collected 29 items
+
+tests/test_api.py::test_health_healthy PASSED                            [  3%]
+tests/test_api.py::test_web_interface PASSED                             [  6%]
+tests/test_api.py::test_valid_prediction PASSED                          [ 10%]
+tests/test_api.py::test_invalid_auth[None] PASSED                        [ 13%]
+tests/test_api.py::test_invalid_auth[Bearer wrong-token] PASSED          [ 17%]
+tests/test_api.py::test_invalid_input[payload0] PASSED                   [ 20%]
+tests/test_api.py::test_invalid_input[payload1] PASSED                   [ 24%]
+tests/test_api.py::test_invalid_input[payload2] PASSED                   [ 27%]
+tests/test_api.py::test_invalid_input[payload3] PASSED                   [ 31%]
+tests/test_api.py::test_invalid_input[payload4] PASSED                   [ 34%]
+tests/test_api.py::test_unsupported_media_type PASSED                    [ 37%]
+tests/test_api.py::test_body_too_large PASSED                            [ 41%]
+tests/test_api.py::test_malformed_json PASSED                            [ 44%]
+tests/test_api.py::test_rate_limit PASSED                                [ 48%]
+tests/test_api.py::test_health_unavailable_on_bad_hash PASSED            [ 51%]
+tests/test_ci_components.py::test_tfidf_preprocessing PASSED             [ 55%]
+tests/test_ci_components.py::test_metrics_known_values PASSED            [ 58%]
+tests/test_ci_components.py::test_data_gate_valid_fixture PASSED         [ 62%]
+tests/test_ci_components.py::test_data_gate_invalid_schema PASSED        [ 65%]
+tests/test_ci_components.py::test_real_model_prediction PASSED           [ 68%]
+tests/test_predict.py::test_valid_input PASSED                           [ 72%]
+tests/test_predict.py::test_invalid_type PASSED                          [ 75%]
+tests/test_predict.py::test_empty_text PASSED                            [ 79%]
+tests/test_predict.py::test_text_too_long PASSED                         [ 82%]
+tests/test_predict.py::test_missing_field PASSED                         [ 86%]
+tests/test_predict.py::test_unexpected_field PASSED                      [ 89%]
+tests/test_predict.py::test_null_byte PASSED                             [ 93%]
+tests/test_predict.py::test_invalid_structure PASSED                     [ 96%]
+tests/test_predict.py::test_none_input PASSED                            [100%]
+
+============================== 29 passed in 1.69s ==============================

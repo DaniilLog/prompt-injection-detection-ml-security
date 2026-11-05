@@ -1,0 +1,105 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>Prompt Injection Detector</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/app.js" defer></script>
+</head>
+<body>
+    <main class="container">
+
+        <header class="header">
+            <div class="brand">
+                <span class="brand-icon">◆</span>
+                <span>ML SECURITY / LAB 04</span>
+            </div>
+            <div id="health" class="health">
+                Проверка API...
+            </div>
+        </header>
+
+        <section class="hero">
+            <p class="eyebrow">SECURE AI INFERENCE</p>
+            <h1>Prompt Injection Detector</h1>
+            <p class="description">
+                Проверка текстовых запросов на признаки
+                prompt injection с использованием
+                модели машинного обучения.
+            </p>
+        </section>
+
+        <section class="card">
+            <h2>Анализ запроса</h2>
+
+            <form id="predict-form" autocomplete="off">
+
+                <label for="token">API-токен</label>
+                <input
+                    id="token"
+                    type="password"
+                    placeholder="Введите API-токен"
+                    autocomplete="off"
+                    spellcheck="false"
+                    required
+                >
+
+                <p class="hint">
+                    Токен используется только для текущего
+                    запроса и не сохраняется в хранилище браузера.
+                </p>
+
+                <label for="prompt">Текст запроса</label>
+                <textarea
+                    id="prompt"
+                    rows="7"
+                    maxlength="2000"
+                    placeholder="Введите текст для анализа..."
+                    required
+                ></textarea>
+
+                <div class="form-footer">
+                    <span id="counter">0 / 2000</span>
+                    <button id="submit" type="submit">
+                        Проверить запрос
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <section id="result-panel"
+                 class="card result"
+                 aria-live="polite"
+                 hidden>
+
+            <p class="eyebrow">РЕЗУЛЬТАТ АНАЛИЗА</p>
+            <h2 id="result-title"></h2>
+            <p id="result-message"></p>
+
+            <div class="result-details">
+                <p>
+                    <strong>HTTP:</strong>
+                    <span id="result-http"></span>
+                </p>
+                <p>
+                    <strong>Модель:</strong>
+                    <span id="result-version"></span>
+                </p>
+                <p>
+                    <strong>Request ID:</strong>
+                    <span id="result-id"></span>
+                </p>
+            </div>
+        </section>
+
+        <footer>
+            <span>Prompt Injection Detection System</span>
+            <span>TF-IDF + Logistic Regression</span>
+        </footer>
+
+    </main>
+</body>
+</html>
