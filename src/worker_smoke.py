@@ -16,7 +16,10 @@ def main():
 
         print("Prediction:", result)
 
-        assert result["class_name"] == "BENIGN"
+        if result["class_name"] != "BENIGN":
+            raise RuntimeError(
+                "Worker smoke test failed: unexpected prediction"
+            )
 
         print("WORKER SMOKE TEST PASSED")
 

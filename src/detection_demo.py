@@ -55,7 +55,10 @@ def valid_prediction(client, api_token):
         },
         json={"text": "What is machine learning?"},
     )
-    assert response.status_code == 200
+    if response.status_code != 200:
+        raise RuntimeError(
+            f"Valid prediction failed: HTTP {response.status_code}"
+        )
     return response.json()["prediction"]
 
 
@@ -73,8 +76,10 @@ def main():
 
         # 1. Проверка нормального состояния
         health = client.get("/health")
-        assert health.status_code == 200
-
+        if health.status_code != 200:
+            raise RuntimeError(
+                f"Health check failed: HTTP {health.status_code}"
+            )
         initial_prediction = valid_prediction(
             client, api_token
         )
@@ -105,7 +110,10 @@ def main():
                 json={"text": "Hello"},
             )
 
-            assert response.status_code == 401
+        if response.status_code != 401:
+            raise RuntimeError(
+                f"Expected HTTP 401, got {response.status_code}"
+            )
 
             request_id = response.json()["request_id"]
 
